@@ -1,5 +1,6 @@
 #include "image.h"
 #include "segment.h"
+#include "curvefit.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,6 +19,18 @@ int main(int argc, char* argv[])
 			Segment seg(im);
 			image<rgb> *seg_img = seg.vis();
 			save(fn_seg.c_str(), seg_img);
+
+
+			std::vector<float>				nodes;
+			std::vector<std::vector<int>>	indices;
+			std::vector<bool>				junction_map;
+
+			seg.trace(nodes, indices, junction_map);
+			CurveFitter fitter(nodes, indices, junction_map);
+			std::string fn_fit = fn_input + ".fit.svg";
+			fitter.saveToSVG(fn_fit);
+
+
 			delete seg_img;
 		}
 		else {
