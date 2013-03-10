@@ -15,6 +15,7 @@ struct ConicSection
 {
 	double A, B, C, D, E, F;
 	float minx, miny, maxx, maxy;
+	float lx, ly, ux, uy;
 };
 
 class CurveFitter
@@ -31,10 +32,12 @@ public:
 		// fit curves.
 		for (int ids = 0; ids < indices.size(); ids++) {
 			for (int idn = 0; idn < indices[ids].size(); idn += 10) {
+
 				std::vector<float> points(2 * (1 + 2 * NUM_NEIGHBORS));
 				int shape_size = indices[ids].size();
 				float minx = 99999, miny = minx;
 				float maxx = -1, maxy = maxx;
+				float lx, ly, ux, uy;
 
 				for (int i = idn - NUM_NEIGHBORS; i <= idn + NUM_NEIGHBORS; i++) {
 					// in the case shape_size is much smaller than NUM_NEIGHBORS, 
@@ -43,14 +46,23 @@ public:
 					int idx = indices[ids][(i + shape_size * NUM_NEIGHBORS) % shape_size];
 					int px = 2 * (i + NUM_NEIGHBORS - idn);
 					int py = px + 1;
+
 					points[px] = nodes[2 * idx];
 					points[py] = nodes[2 * idx + 1];
-					//points.push_back(nodes[2 * idx]);
-					//points.push_back(nodes[2 * idx + 1]);
 
-					minx = std::min(minx, points[px]);
+					if (points[px] < minx) {
+						minx = points[px];
+						lx = points[px];
+						ly = points[py];
+					}
+					if (points[py] < miny) {
+						miny = points[py];
+						ux = points[px];
+						uy = points[py];
+					}
+					// minx = std::min(minx, points[px]);
 					maxx = std::max(maxx, points[px]);
-					miny = std::min(miny, points[py]);
+					// miny = std::min(miny, points[py]);
 					maxy = std::max(maxy, points[py]);
 				}
 
@@ -59,6 +71,10 @@ public:
 				tmp.miny = miny;
 				tmp.maxx = maxx;
 				tmp.maxy = maxy;
+				tmp.lx = lx;
+				tmp.ly = ly; 
+				tmp.ux = ux;
+				tmp.uy = uy;
 				_fitConic(points, tmp);
 				conics.push_back(tmp);
 			}
@@ -133,10 +149,16 @@ public:
 	{
 		enum {FOREACH_X, FOREACH_Y};
 		int mode;
-		if ((conic.maxx - conic.minx) > (conic.maxy - conic.miny))
+		if ((conic.maxx - conic.minx) > (conic.maxy - conic.miny)) {
 			mode = FOREACH_X;
-		else 
+			samples.push_back(conic.lx);
+			samples.push_back(conic.ly);
+		}
+		else {
 			mode = FOREACH_Y;
+			samples.push_back(conic.ux);
+			samples.push_back(conic.uy);
+		}
 
 		const double EPSILON = 0.1;
 		double a, b, c;
@@ -153,11 +175,17 @@ public:
 				b = B*x + E;
 				c = A*x*x + D*x + F;
 				std::vector<float> y = _solveQuadratic(a, b, c);
-				for (int i = 0; i < y.size(); i++) {
-					if (conic.miny - EPSILON <= y[i] && y[i] <= conic.maxy + EPSILON) {
-						samples.push_back(x);
-						samples.push_back(y[i]);
-					}
+				if (y.size() == 1) {
+					samples.push_back(x);
+					samples.push_back(y[0]);
+				}
+				else if (y.size() == 2) {
+					float yprev = samples[samples.size() - 1];
+					samples.push_back(x);
+					if (std::abs(y[0] - yprev) < std::abs(y[1] - yprev))
+						samples.push_back(y[0]);
+					else
+						samples.push_back(y[1]);
 				}
 			}
 		}
@@ -167,14 +195,22 @@ public:
 				b = B*y + D;
 				c = C*y*y + E*y + F;
 				std::vector<float> x = _solveQuadratic(a, b, c);
-				for (int i = 0; i < x.size(); i++) {
-					if (conic.minx - EPSILON <= x[i] && x[i] <= conic.maxx + EPSILON) {
-						samples.push_back(x[i]);
-						samples.push_back(y);
-					}
+				if (x.size() == 1) {
+					samples.push_back(x[0]);
+					samples.push_back(y);
+				}
+				else if (x.size() == 2) {
+					float xprev = samples[samples.size() - 2];
+					if (std::abs(x[0] - xprev) < std::abs(x[1] - xprev))
+						samples.push_back(x[0]);
+					else
+						samples.push_back(x[1]);
+					samples.push_back(y);
 				}
 			}
 		}
+		samples.erase(samples.begin());
+		samples.erase(samples.begin());
 	}
 
 
