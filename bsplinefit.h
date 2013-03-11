@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 #include "b-spline\f2c.h"
 
 
@@ -82,9 +83,17 @@ public:
 			  *c = new float[nc],
 			  *wrk = new float[lwrk];
 
-		for (int i = 0; i < m; i++)
-			w[i] = 1;
-
+		// use gaussian weights that have pdf=1.0 at the central,
+		// and have pdf = e^(-1.5)=0.2231 at the two ends.
+		double variance = NUM_NEIGHBORS * NUM_NEIGHBORS / 3;
+		int idx_central = m / 2;
+		for (int i = 0; i < m; i++) {
+			w[i] = 1.0;
+			w[i] = std::exp(-((i - idx_central) * (i - idx_central)) / (2 * variance));
+			//w[i] = 1.0 / w[i];
+			/*if (i == 0)
+				std::cout << w[i] << std::endl;*/
+		}
 		  
 		parcur_(&iopt, &ipar, &idim,
 			&m, u, &mx, x, w, &ub, &ue,
