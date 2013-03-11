@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="curev.c" />
+    <ClCompile Include="fpback.c" />
+    <ClCompile Include="fpbspl.c" />
+    <ClCompile Include="fpchec.c" />
+    <ClCompile Include="fpdisc.c" />
+    <ClCompile Include="fpgivs.c" />
+    <ClCompile Include="fpknot.c" />
+    <ClCompile Include="fppara.c" />
+    <ClCompile Include="fprati.c" />
+    <ClCompile Include="fprota.c" />
+    <ClCompile Include="parcur.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="f2c.h" />
+  </ItemGroup>
+</Project>
