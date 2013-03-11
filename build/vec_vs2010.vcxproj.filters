@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\b-spline\curev.c" />
+    <ClCompile Include="..\b-spline\fpback.c" />
+    <ClCompile Include="..\b-spline\fpbspl.c" />
+    <ClCompile Include="..\b-spline\fpchec.c" />
+    <ClCompile Include="..\b-spline\fpdisc.c" />
+    <ClCompile Include="..\b-spline\fpgivs.c" />
+    <ClCompile Include="..\b-spline\fpknot.c" />
+    <ClCompile Include="..\b-spline\fppara.c" />
+    <ClCompile Include="..\b-spline\fprati.c" />
+    <ClCompile Include="..\b-spline\fprota.c" />
+    <ClCompile Include="..\b-spline\parcur.c" />
+    <ClCompile Include="..\image.cpp" />
+    <ClCompile Include="..\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\b-spline\f2c.h" />
+    <ClInclude Include="..\helper.h" />
+    <ClInclude Include="..\image.h" />
+    <ClInclude Include="..\segment.h" />
+    <ClInclude Include="..\conicfit.h" />
+    <ClInclude Include="..\bsplinefit.h" />
+  </ItemGroup>
+</Project>

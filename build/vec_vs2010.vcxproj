@@ -76,12 +76,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\curvefit.h" />
+    <ClInclude Include="..\b-spline\f2c.h" />
+    <ClInclude Include="..\bsplinefit.h" />
+    <ClInclude Include="..\conicfit.h" />
     <ClInclude Include="..\helper.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\segment.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\b-spline\curev.c" />
+    <ClCompile Include="..\b-spline\fpback.c" />
+    <ClCompile Include="..\b-spline\fpbspl.c" />
+    <ClCompile Include="..\b-spline\fpchec.c" />
+    <ClCompile Include="..\b-spline\fpdisc.c" />
+    <ClCompile Include="..\b-spline\fpgivs.c" />
+    <ClCompile Include="..\b-spline\fpknot.c" />
+    <ClCompile Include="..\b-spline\fppara.c" />
+    <ClCompile Include="..\b-spline\fprati.c" />
+    <ClCompile Include="..\b-spline\fprota.c" />
+    <ClCompile Include="..\b-spline\parcur.c" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
   </ItemGroup>

@@ -18,18 +18,17 @@ struct ConicSection
 	float lx, ly, ux, uy;
 };
 
-class CurveFitter
+class ConicFitter
 {
 #define NUM_NEIGHBORS 15
 private:
 	std::vector<ConicSection> conics;
 
 public:
-	CurveFitter(std::vector<float>&				nodes,
+	ConicFitter(std::vector<float>&				nodes,
 				std::vector<std::vector<int>>&	indices,
 				std::vector<bool>&				junction_map)
 	{
-		// fit curves.
 		for (int ids = 0; ids < indices.size(); ids++) {
 			for (int idn = 0; idn < indices[ids].size(); idn += 10) {
 

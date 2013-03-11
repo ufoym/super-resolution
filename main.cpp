@@ -1,6 +1,7 @@
 #include "image.h"
 #include "segment.h"
-#include "curvefit.h"
+#include "conicfit.h"
+#include "bsplinefit.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -26,7 +27,7 @@ int main(int argc, char* argv[])
 			std::vector<bool>				junction_map;
 
 			seg.trace(nodes, indices, junction_map);
-			CurveFitter fitter(nodes, indices, junction_map);
+			BSplineFitter fitter(nodes, indices, junction_map);
 			std::string fn_fit = fn_input + ".fit.svg";
 			fitter.saveToSVG(fn_fit);
 
