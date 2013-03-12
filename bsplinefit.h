@@ -69,7 +69,7 @@ public:
 
 	void _fitBSpline(std::vector<float>& points, BSpline& spline)
 	{
-		long  iopt = 0, ipar = 0, idim = 2, k = 3,
+		long  iopt = 0, ipar = 0, idim = 2, k = 5,
 			  m = points.size() / 2,
 			  mx = idim * m,
 			  nest = m + k + 1,
@@ -77,7 +77,7 @@ public:
 			  lwrk = m*(k+1)+nest*(6+idim+3*k),
 			  n, ier;
 		long  *iwrk = new long[nest];
-		float ub, ue, fp, s = 5.0,
+		float ub, ue, fp, s = 3.0,
 			  *x = &points[0];
 		float *u = new float[m],
 			  *w = new float[m],
