@@ -1,10 +1,13 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include "image.h"
 #include "segment.h"
 #include "conicfit.h"
 #include "bsplinefit.h"
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "renderer.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -20,7 +23,7 @@ int main(int argc, char* argv[])
 			Segment seg(im);
 			image<rgb> *seg_img = seg.vis();
 			save(fn_seg.c_str(), seg_img);
-
+			
 
 			std::vector<float>				nodes;
 			std::vector<std::vector<int>>	indices;
@@ -31,7 +34,12 @@ int main(int argc, char* argv[])
 			std::string fn_fit = fn_input + ".fit.svg";
 			fitter.saveToSVG(fn_fit);
 
-
+			
+			std::vector<BSpline> splines;
+			fitter.getSplines(splines);
+			fitter.clear();
+			Renderer renderer(nodes, indices, junction_map, 
+				splines, im, seg_img, seg.get_color_map());
 			delete seg_img;
 		}
 		else {

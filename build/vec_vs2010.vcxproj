@@ -81,6 +81,7 @@
     <ClInclude Include="..\conicfit.h" />
     <ClInclude Include="..\helper.h" />
     <ClInclude Include="..\image.h" />
+    <ClInclude Include="..\renderer.h" />
     <ClInclude Include="..\segment.h" />
     <ClInclude Include="..\writesvg.h" />
   </ItemGroup>

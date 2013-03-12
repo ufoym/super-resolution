@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+
 #include "b-spline\f2c.h"
 #include "writesvg.h"
 
@@ -27,6 +28,10 @@ struct BSpline
 	std::vector<float> t;
 	std::vector<float> c;
 	std::vector<float> u;
+	int id_shape;
+	int id_node;
+	std::vector<float> data;
+	std::vector<float> samples;
 };
 
 class BSplineFitter
@@ -60,6 +65,9 @@ public:
 				}
 				
 				splines.push_back(BSpline());
+				splines[splines.size() - 1].id_shape = ids;
+				splines[splines.size() - 1].id_node = idn;
+				splines[splines.size() - 1].data = points;
 				_fitBSpline(points, splines[splines.size() - 1]);
 			}
 		}
@@ -110,6 +118,8 @@ public:
 		memcpy(&spline.c[0], c, nc * sizeof(float));
 		spline.u.resize(m);
 		memcpy(&spline.u[0], u, m * sizeof(float));
+		spline.samples.resize(2 * m);
+		_sampleBSpline(spline, spline.samples);
 
 		delete[] iwrk, u, w, t, c, wrk;
 	}
@@ -158,14 +168,28 @@ public:
 		file.close();
 	}
 
+
 	void saveToSVG(std::string& filename)
 	{
 		SVGWriter writer(filename);
 		for (int i = 0; i < splines.size(); i++) {
 			std::vector<float> samples;
-			_sampleBSpline(splines[i], samples);
-			writer.writePolygon(samples, "#00FF00");
+			//_sampleBSpline(splines[i], samples);
+			//writer.writePolygon(samples, "#00FF00");
+			writer.writePolygon(splines[i].samples, "#00FF00");
 		}
 		writer.close();
+	}
+
+
+	void getSplines(std::vector<BSpline>& splines)
+	{
+		splines = this->splines;
+	}
+
+	
+	void clear()
+	{
+		splines.clear();
 	}
 };

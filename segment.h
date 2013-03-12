@@ -230,6 +230,7 @@ public:
 
 	~Segment(){delete seg_map;};
 	inline int count() const{return (int)color_map.size();}
+	std::map<int,rgb> get_color_map() {return color_map;}  // added by chizhang for the ease of aliased rendering, 2013-3-12.
 
 	image<rgb> *vis()
 	{

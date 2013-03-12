@@ -23,5 +23,6 @@
     <ClInclude Include="..\conicfit.h" />
     <ClInclude Include="..\bsplinefit.h" />
     <ClInclude Include="..\writesvg.h" />
+    <ClInclude Include="..\renderer.h" />
   </ItemGroup>
 </Project>
