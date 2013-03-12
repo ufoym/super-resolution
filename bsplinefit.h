@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include "b-spline\f2c.h"
+#include "writesvg.h"
 
 
 extern "C" {
@@ -30,7 +31,8 @@ struct BSpline
 
 class BSplineFitter
 {
-#define NUM_NEIGHBORS 15
+#define NUM_NEIGHBORS		10
+#define SAMPLE_INTERVAL		5
 private:
 	std::vector<BSpline> splines;
 
@@ -40,7 +42,7 @@ public:
 				std::vector<bool>&				junction_map)
 	{
 		for (int ids = 0; ids < indices.size(); ids++) {
-			for (int idn = 0; idn < indices[ids].size(); idn += 10) {
+			for (int idn = 0; idn < indices[ids].size(); idn += SAMPLE_INTERVAL) {
 
 				std::vector<float> points(2 * (1 + 2 * NUM_NEIGHBORS));
 				int shape_size = indices[ids].size();
@@ -75,7 +77,7 @@ public:
 			  lwrk = m*(k+1)+nest*(6+idim+3*k),
 			  n, ier;
 		long  *iwrk = new long[nest];
-		float ub, ue, fp, s = 5,
+		float ub, ue, fp, s = 5.0,
 			  *x = &points[0];
 		float *u = new float[m],
 			  *w = new float[m],
@@ -89,7 +91,7 @@ public:
 		int idx_central = m / 2;
 		for (int i = 0; i < m; i++) {
 			w[i] = 1.0;
-			w[i] = std::exp(-((i - idx_central) * (i - idx_central)) / (2 * variance));
+			//w[i] = std::exp(-((i - idx_central) * (i - idx_central)) / (2 * variance));
 			//w[i] = 1.0 / w[i];
 			/*if (i == 0)
 				std::cout << w[i] << std::endl;*/
@@ -158,32 +160,12 @@ public:
 
 	void saveToSVG(std::string& filename)
 	{
-		std::ofstream file(filename, std::ios::out | std::ios::binary);
-		const std::string svg_header = "<?xml version=\"1.0\" standalone=\"no\"?>\n"
-			"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n"
-			"\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
-			"<svg width=\"224\" height=\"225\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-		file << svg_header << std::endl;
-		std::cout <<  file.is_open() << std::endl;
-
+		SVGWriter writer(filename);
 		for (int i = 0; i < splines.size(); i++) {
-			// densely sample each conic section
-			// and ouput the sampled points to file.
 			std::vector<float> samples;
 			_sampleBSpline(splines[i], samples);
-
-			file << "<polyline points=\"";
-			for (int j = 0; j + 1 < samples.size(); j += 2) {
-				file << samples[j] << ","
-					 << samples[j + 1] << " ";
-			}
-			file << "\" style=\"fill-opacity:0; "
-				 << "stroke-opacity:0.8; "
-				 << "stroke:#00ff00; stroke-width:0.2\"/>"
-				 << std::endl;
+			writer.writePolygon(samples, "#00FF00");
 		}
-
-		file << "</svg>" << std::endl;
-		file.close();
+		writer.close();
 	}
 };

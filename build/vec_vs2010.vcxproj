@@ -82,6 +82,7 @@
     <ClInclude Include="..\helper.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\segment.h" />
+    <ClInclude Include="..\writesvg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\b-spline\curev.c" />
