@@ -81,15 +81,15 @@ int main()
 		points.push_back(y);
 	}
 	
-	points.clear();
-	for (float i = 10.0; i >= 0; i -= 0.2) {
-		points.push_back(0);
-		points.push_back(i);
-	}
-	for (float i = 0.2; i <= 10.0; i += 0.2) {
-		points.push_back(i);
-		points.push_back(0);
-	}
+	//points.clear();
+	//for (float i = 10.0; i >= 0; i -= 0.2) {
+	//	points.push_back(0);
+	//	points.push_back(i);
+	//}
+	//for (float i = 0.2; i <= 10.0; i += 0.2) {
+	//	points.push_back(i);
+	//	points.push_back(0);
+	//}
 	
 
 	long iopt = 0, ipar = 0, idim = 2, k = 3,
@@ -100,7 +100,7 @@ int main()
 		 lwrk = m*(k+1)+nest*(6+idim+3*k),
 		 n, ier;
 	long *iwrk = new long[nest];
-	float ub, ue, fp, s = 0.3;
+	float ub, ue, fp, s = 5;
 	float *u = new float[m],
 		  *w = new float[m],
 		  *x = new float[mx],
@@ -122,8 +122,9 @@ int main()
 
 	std::cout << ier << std::endl;
 	std::cout << fp << std::endl;
-	for (int i = 1; i < m; i++)
-		std::cout << u[i] - u[i - 1] << std::endl;
+	std::cout << "knots: " << n << std::endl;
+	//for (int i = 1; i < m; i++)
+	//	std::cout << u[i] - u[i - 1] << std::endl;
 
 
 	/* Subroutine */ int curev_(integer *idim, real *t, integer *n, real *c__, 
@@ -159,4 +160,8 @@ int main()
 	writer.close();
 
 	delete[] iwrk, u, w, x, t, c, wrk;
+
+	double a = 256;
+	unsigned char b = a;
+	std::cout << (int)b << std::endl;
 }

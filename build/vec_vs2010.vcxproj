@@ -97,8 +97,12 @@
     <ClCompile Include="..\b-spline\fprati.c" />
     <ClCompile Include="..\b-spline\fprota.c" />
     <ClCompile Include="..\b-spline\parcur.c" />
+    <ClCompile Include="..\bsplinefit.cpp" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\renderer.cpp" />
+    <ClCompile Include="..\segment.cpp" />
+    <ClCompile Include="..\writesvg.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

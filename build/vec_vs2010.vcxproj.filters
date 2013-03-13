@@ -14,6 +14,10 @@
     <ClCompile Include="..\b-spline\parcur.c" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\renderer.cpp" />
+    <ClCompile Include="..\bsplinefit.cpp" />
+    <ClCompile Include="..\writesvg.cpp" />
+    <ClCompile Include="..\segment.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\b-spline\f2c.h" />

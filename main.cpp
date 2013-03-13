@@ -4,7 +4,6 @@
 
 #include "image.h"
 #include "segment.h"
-#include "conicfit.h"
 #include "bsplinefit.h"
 #include "renderer.h"
 
