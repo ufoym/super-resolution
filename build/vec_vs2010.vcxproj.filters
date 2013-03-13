@@ -1,32 +1,78 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\b-spline\curev.c" />
-    <ClCompile Include="..\b-spline\fpback.c" />
-    <ClCompile Include="..\b-spline\fpbspl.c" />
-    <ClCompile Include="..\b-spline\fpchec.c" />
-    <ClCompile Include="..\b-spline\fpdisc.c" />
-    <ClCompile Include="..\b-spline\fpgivs.c" />
-    <ClCompile Include="..\b-spline\fpknot.c" />
-    <ClCompile Include="..\b-spline\fppara.c" />
-    <ClCompile Include="..\b-spline\fprati.c" />
-    <ClCompile Include="..\b-spline\fprota.c" />
-    <ClCompile Include="..\b-spline\parcur.c" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\renderer.cpp" />
     <ClCompile Include="..\bsplinefit.cpp" />
     <ClCompile Include="..\writesvg.cpp" />
     <ClCompile Include="..\segment.cpp" />
+    <ClCompile Include="..\b-spline\fprota.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpback.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpbspl.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpchec.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpdisc.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpgivs.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fpknot.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fppara.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\fprati.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\curev.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
+    <ClCompile Include="..\b-spline\parcur.c">
+      <Filter>fitpack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\b-spline\f2c.h" />
-    <ClInclude Include="..\helper.h" />
-    <ClInclude Include="..\image.h" />
-    <ClInclude Include="..\segment.h" />
-    <ClInclude Include="..\conicfit.h" />
-    <ClInclude Include="..\bsplinefit.h" />
-    <ClInclude Include="..\writesvg.h" />
-    <ClInclude Include="..\renderer.h" />
+    <ClInclude Include="..\b-spline\f2c.h">
+      <Filter>fitpack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\segment.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\writesvg.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\image.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\helper.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\conicfit.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\bsplinefit.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="fitpack">
+      <UniqueIdentifier>{2668f1b8-8b4c-4b33-b361-ffb0a4fa964b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{1ba65b63-ae24-458f-b9f6-dd56a52ddae2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
