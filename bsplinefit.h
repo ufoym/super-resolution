@@ -37,7 +37,7 @@ struct BSpline
 class BSplineFitter
 {
 #define NUM_NEIGHBORS		10
-#define SAMPLE_INTERVAL		5
+#define SAMPLE_INTERVAL		3
 private:
 	std::vector<BSpline> splines;
 
@@ -77,7 +77,7 @@ public:
 
 	void _fitBSpline(std::vector<float>& points, BSpline& spline)
 	{
-		long  iopt = 0, ipar = 0, idim = 2, k = 5,
+		long  iopt = 0, ipar = 0, idim = 2, k = 1,
 			  m = points.size() / 2,
 			  mx = idim * m,
 			  nest = m + k + 1,

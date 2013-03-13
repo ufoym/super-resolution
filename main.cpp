@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 			Renderer renderer(nodes, indices, junction_map, 
 				splines, im, seg_img, seg.get_color_map());
 			delete seg_img;
+			delete im;
 		}
 		else {
 			std::cout << "file not support" << std::endl;

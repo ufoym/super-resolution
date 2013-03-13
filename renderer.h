@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <cmath>
 #include <algorithm>
 
 #include "image.h"
@@ -14,6 +13,7 @@
 class Renderer 
 {
 private:
+	#define UP_SCALE	5
 
 public:
 	Renderer(std::vector<float>&			nodes,
@@ -25,31 +25,58 @@ public:
 			 std::map<int, rgb>&			color_map)
 	{
 		// allocate memory for the result.
-		int width = im->width();
-		int height = im->height();
+		int width  = UP_SCALE * im->width();
+		int height = UP_SCALE * im->height();
 		image<rgb> *result = new image<rgb>(width, height);
+
+		// scale up all the coordinates.
+		for (int i = 0; i < nodes.size(); i++)
+			nodes[i] *= 3;
+		for (int i = 0; i < splines.size(); i++) {
+			for (int j = 0; j < splines[i].c.size(); j++)
+				splines[i].c[j] *= UP_SCALE;
+			for (int j = 0; j < splines[i].data.size(); j++)
+				splines[i].data[j] *= UP_SCALE;
+			for (int j = 0; j < splines[i].samples.size(); j++)
+				splines[i].samples[j] *= UP_SCALE;
+		}
 
 		// render patches on shape boundaries.
 		for (int id_spline = 0; id_spline < splines.size(); id_spline++) {
-			// determine the central node of this spline.
-			BSpline& spline = splines[id_spline];
-			int num_points = spline.data.size() / 2;
-			int id_central = num_points / 2;
-			int xc = (int)(0.5 + spline.data[2 * id_central]);		
-			int yc = (int)(0.5 + spline.data[2 * id_central + 1]);   
 
-			// determine background color of the current 5x5 patch using the seg_img.
+			// step 1: determine the central node of this spline.
+			BSpline& spline = splines[id_spline];
+			int num_samples = spline.samples.size() / 2;
+			int id_central = num_samples / 2;
+			int xc = (int)(0.5 + spline.samples[2 * id_central]);		
+			int yc = (int)(0.5 + spline.samples[2 * id_central + 1]); 
+			xc = min(xc, width - 1);
+			yc = min(yc, height - 1);
+
+			// step 2: determine background color of the current 5x5 patch using the seg_img.
 			rgb fg_color = color_map[spline.id_shape];
-			rgb bg_color = im->access[xc][yc];
-			for (int x = max(0, xc - 2); x <= min(xc + 2, width); x++) {
-				for (int y = max(0, yc - 2); y <= min(yc + 2, height); y++) {
-					if (_rgbDist(im->access[x][y], fg_color) > _rgbDist(bg_color, fg_color)) {
-						bg_color = im->access[x][y];
+			rgb bg_color = seg_img->access[yc / UP_SCALE][xc / UP_SCALE];
+			int yy = yc / UP_SCALE;
+			int xx = xc / UP_SCALE;
+			for (int dx = -1; dx <= 0; dx++) {
+				for (int dy = -1; dy <= 0; dy++) {
+					if (xx + dx >= 0 && yy + dy >= 0) {
+						if (_rgbDist(seg_img->access[yy + dy][xx + dx], fg_color) > 1)
+							bg_color = seg_img->access[yy + dy][xx + dx];
 					}
 				}
 			}
 
-			// merge the spline with the polygon of current shape.
+			//for (int x = max(0, xc - 2); x < min(xc + 2, width); x++) {
+			//	for (int y = max(0, yc - 2); y < min(yc + 2, height); y++) {
+			//		if (_rgbDist(seg_img->access[y / UP_SCALE][x / UP_SCALE], fg_color) 
+			//			> _rgbDist(bg_color, fg_color)) {
+			//			bg_color = seg_img->access[y / UP_SCALE][x / UP_SCALE];
+			//		}
+			//	}
+			//}
+
+			// step 3: merge the spline with the polygon of current shape.
 			int id_shape = spline.id_shape;
 			int shape_size = indices[id_shape].size();
 			std::vector<float> polygon(2 * shape_size);
@@ -75,13 +102,13 @@ public:
 			new_polygon.push_back(polygon[2 * idx_lo_ngbr]);
 			new_polygon.push_back(polygon[2 * idx_lo_ngbr + 1]);
 
-			// assign color to each pixel in the 5x5 patch by pointInPolygon test.
-			for (int x = max(0, xc - 2); x <= min(xc + 2, width); x++) {
-				for (int y = max(0, yc - 2); y <= min(yc + 2, height); y++) {
+			// step 4: assign color to each pixel in the 5x5 patch by pointInPolygon test.
+			for (int x = max(0, xc - 2); x < min(xc + 2, width); x++) {
+				for (int y = max(0, yc - 2); y < min(yc + 2, height); y++) {
 					if (_pointInPolygon(x + 0.5, y + 0.5, new_polygon))
-						result->access[x][y] = fg_color;
+						result->access[y][x] = fg_color;
 					else
-						result->access[x][y] = bg_color;
+						result->access[y][x] = bg_color;
 				}
 			}
 		}
