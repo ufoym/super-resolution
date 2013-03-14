@@ -1,6 +1,6 @@
 #include <sstream>
-#include "bsplinefit.h"
-#include "writesvg.h"
+#include "spline.h"
+#include "svg.h"
 #include "b-spline\f2c.h"  // this header should be lastly added.
 
 extern "C" {

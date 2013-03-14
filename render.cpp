@@ -2,17 +2,25 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include "writesvg.h"
-#include "renderer.h"
+#include "svg.h"
+#include "render.h"
 
-Renderer::Renderer( std::vector<float>& nodes, std::vector<std::vector<int>>& indices, std::vector<bool>& junction_map, std::vector<BSpline>& splines, image<rgb>* im, image<rgb>* seg_img, std::map<int, rgb>& color_map )
+Renderer::Renderer( std::vector<float>&				nodes, 
+					std::vector<std::vector<int>>&	indices, 
+					std::vector<bool>&				junction_map, 
+					std::vector<BSpline>&			splines, 
+					image<rgb>*						im, 
+					image<rgb>*						seg_img, 
+					std::map<int, rgb>&				color_map )
 {
 	bool debug_mode = false;
+	int DEBUG_ID_SPLINE = 200;
 	SVGWriter writer("debug.svg");
 	// allocate memory for the result.
 	int width  = UP_SCALE * im->width();
 	int height = UP_SCALE * im->height();
 	image<rgb> *result = new image<rgb>(width, height);
+	image<char> *visited = new image<char>(width, height);
 
 	// scale up all the coordinates.
 	for (int i = 0; i < nodes.size(); i++)
@@ -47,7 +55,7 @@ Renderer::Renderer( std::vector<float>& nodes, std::vector<std::vector<int>>& in
 		for (int dx = -1; dx <= 0; dx++) {
 			for (int dy = -1; dy <= 0; dy++) {
 				if (xx + dx >= 0 && yy + dy >= 0) {
-					if (debug_mode && id_spline == 200) {
+					if (debug_mode && id_spline == DEBUG_ID_SPLINE) {
 						rgb color = seg_img->access[yy + dy][xx + dx];
 						std::cout << "nb_color: " << (int)color.r << "," << (int)color.g << "," << (int)color.b << "\n";
 					}
@@ -84,7 +92,7 @@ Renderer::Renderer( std::vector<float>& nodes, std::vector<std::vector<int>>& in
 		new_polygon.push_back(polygon[2 * idx_lo_ngbr]);
 		new_polygon.push_back(polygon[2 * idx_lo_ngbr + 1]);
 
-		if (debug_mode && id_spline == 200) {
+		if (debug_mode && id_spline == DEBUG_ID_SPLINE) {
 			writer.writePolygon(new_polygon, "#00FF00");
 			writer.writeDots(new_polygon, "#0000FF");
 		}
@@ -98,7 +106,7 @@ Renderer::Renderer( std::vector<float>& nodes, std::vector<std::vector<int>>& in
 				int num_inside = 0;
 				for (float dx = 0.1; dx < 1; dx += 0.2) {
 					for (float dy = 0.1; dy < 1; dy += 0.2) {
-						if (debug_mode && id_spline == 200
+						if (debug_mode && id_spline == DEBUG_ID_SPLINE
 							&& x == xc + 1 && y == yc + 1) {
 								bool in = _pointInPolygon(x + dx, y + dy, new_polygon);
 								std::string color;
@@ -110,8 +118,20 @@ Renderer::Renderer( std::vector<float>& nodes, std::vector<std::vector<int>>& in
 							num_inside++;
 					}
 				}
-				result->access[y][x] = _linearComb(fg_color, bg_color, num_inside / 25.0);
-				if (debug_mode && id_spline == 200) {
+				// a naive way to deal with patch overlap: just average the pixel value
+				// if current patch has already been visited, assuming that the current
+				// patch will only be overlapped with the previous reconstructed patch.
+				if (visited->access[y][x]) {
+					result->access[y][x] = _linearComb(
+						_linearComb(fg_color, bg_color, num_inside / 25.0),
+						result->access[y][x], 0.5);
+				} 
+				else {
+					result->access[y][x] = _linearComb(fg_color, bg_color, num_inside / 25.0);
+					visited->access[y][x] = 1;
+				}
+				// dotted the current patch in debug mode.
+				if (debug_mode && id_spline == DEBUG_ID_SPLINE) {
 					writer.writeDot(x + 0.5, y + 0.5, "#FF0000");
 				}
 			}

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "image.h"
-#include "bsplinefit.h"
+#include "spline.h"
 
 
 class Renderer 

@@ -1,4 +1,4 @@
-#include "writesvg.h"
+#include "svg.h"
 
 void SVGWriter::close()
 {

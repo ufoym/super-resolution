@@ -4,8 +4,8 @@
 
 #include "image.h"
 #include "segment.h"
-#include "bsplinefit.h"
-#include "renderer.h"
+#include "spline.h"
+#include "render.h"
 
 
 int main(int argc, char* argv[])

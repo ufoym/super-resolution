@@ -77,13 +77,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\b-spline\f2c.h" />
-    <ClInclude Include="..\bsplinefit.h" />
+    <ClInclude Include="..\spline.h" />
     <ClInclude Include="..\conicfit.h" />
     <ClInclude Include="..\helper.h" />
     <ClInclude Include="..\image.h" />
-    <ClInclude Include="..\renderer.h" />
+    <ClInclude Include="..\render.h" />
     <ClInclude Include="..\segment.h" />
-    <ClInclude Include="..\writesvg.h" />
+    <ClInclude Include="..\svg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\b-spline\curev.c" />
@@ -97,12 +97,12 @@
     <ClCompile Include="..\b-spline\fprati.c" />
     <ClCompile Include="..\b-spline\fprota.c" />
     <ClCompile Include="..\b-spline\parcur.c" />
-    <ClCompile Include="..\bsplinefit.cpp" />
+    <ClCompile Include="..\spline.cpp" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
-    <ClCompile Include="..\renderer.cpp" />
+    <ClCompile Include="..\render.cpp" />
     <ClCompile Include="..\segment.cpp" />
-    <ClCompile Include="..\writesvg.cpp" />
+    <ClCompile Include="..\svg.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

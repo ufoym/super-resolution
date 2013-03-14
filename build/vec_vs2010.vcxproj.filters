@@ -3,9 +3,6 @@
   <ItemGroup>
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\main.cpp" />
-    <ClCompile Include="..\renderer.cpp" />
-    <ClCompile Include="..\bsplinefit.cpp" />
-    <ClCompile Include="..\writesvg.cpp" />
     <ClCompile Include="..\segment.cpp" />
     <ClCompile Include="..\b-spline\fprota.c">
       <Filter>fitpack</Filter>
@@ -40,18 +37,15 @@
     <ClCompile Include="..\b-spline\parcur.c">
       <Filter>fitpack</Filter>
     </ClCompile>
+    <ClCompile Include="..\svg.cpp" />
+    <ClCompile Include="..\render.cpp" />
+    <ClCompile Include="..\spline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\b-spline\f2c.h">
       <Filter>fitpack</Filter>
     </ClInclude>
     <ClInclude Include="..\segment.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\writesvg.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\renderer.h">
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="..\image.h">
@@ -63,7 +57,13 @@
     <ClInclude Include="..\conicfit.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\bsplinefit.h">
+    <ClInclude Include="..\spline.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\render.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\svg.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
