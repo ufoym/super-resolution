@@ -10,7 +10,8 @@
 class Renderer 
 {
 private:
-	#define UP_SCALE	3
+	#define UP_SCALE		3
+	#define PATCH_RADIUS	UP_SCALE
 
 public:
 	Renderer(std::vector<float>&			nodes,

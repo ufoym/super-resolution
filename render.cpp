@@ -16,11 +16,32 @@ Renderer::Renderer( std::vector<float>&				nodes,
 	bool debug_mode = false;
 	int DEBUG_ID_SPLINE = 200;
 	SVGWriter writer("debug.svg");
+
 	// allocate memory for the result.
 	int width  = UP_SCALE * im->width();
 	int height = UP_SCALE * im->height();
 	image<rgb> *result = new image<rgb>(width, height);
-	image<char> *visited = new image<char>(width, height);
+	//image<char> *visited = new image<char>(width, height);
+
+	typedef struct{
+		int cnt, r, g, b;
+		void operator += (rgb& c) {
+			cnt++;
+			r += c.r;
+			g += c.g;
+			b += c.b;
+		}
+		rgb simplify() {
+			rgb c = {0, 0, 0};
+			if (cnt != 0) {
+				c.r = r / cnt;
+				c.g = g / cnt;
+				c.b = b / cnt;
+			}
+			return c;
+		}
+	} xrgb;
+	image<xrgb> *im_tmp = new image<xrgb>(width, height);
 
 	// scale up all the coordinates.
 	for (int i = 0; i < nodes.size(); i++)
@@ -98,8 +119,8 @@ Renderer::Renderer( std::vector<float>&				nodes,
 		}
 
 		// step 4: assign color to each pixel in the 5x5 patch by pointInPolygon test.	
-		for (int x = std::max(0, xc - 2); x <= std::min(xc + 2, width - 1); x++) {
-			for (int y = std::max(0, yc - 2); y <= std::min(yc + 2, height - 1); y++) {
+		for (int x = std::max(0, xc - PATCH_RADIUS); x < std::min(xc + PATCH_RADIUS, width - 1); x++) {
+			for (int y = std::max(0, yc - PATCH_RADIUS); y < std::min(yc + PATCH_RADIUS, height - 1); y++) {
 				// subdivide a pixel into 5x5 grid with 25 sensor points.
 				// perform pointInPolygon test to these 25 points and calculate
 				// the pixel color as linear combination of fore- & back-ground colors.
@@ -121,15 +142,18 @@ Renderer::Renderer( std::vector<float>&				nodes,
 				// a naive way to deal with patch overlap: just average the pixel value
 				// if current patch has already been visited, assuming that the current
 				// patch will only be overlapped with the previous reconstructed patch.
-				if (visited->access[y][x]) {
-					result->access[y][x] = _linearComb(
-						_linearComb(fg_color, bg_color, num_inside / 25.0),
-						result->access[y][x], 0.5);
-				} 
-				else {
-					result->access[y][x] = _linearComb(fg_color, bg_color, num_inside / 25.0);
-					visited->access[y][x] = 1;
-				}
+				//if (visited->access[y][x]) {
+				//	result->access[y][x] = _linearComb(
+				//		_linearComb(fg_color, bg_color, num_inside / 25.0),
+				//		result->access[y][x], 0.5);
+				//} 
+				//else {
+				//	result->access[y][x] = _linearComb(fg_color, bg_color, num_inside / 25.0);
+				//	visited->access[y][x] = 1;
+				//}
+				// a more sophisticated way to deal mix overlapped regions:
+				// just accumulate the color value for each pixel, and normalize at the last step.
+				im_tmp->access[y][x] += _linearComb(fg_color, bg_color, num_inside / 25.0);
 				// dotted the current patch in debug mode.
 				if (debug_mode && id_spline == DEBUG_ID_SPLINE) {
 					writer.writeDot(x + 0.5, y + 0.5, "#FF0000");
@@ -138,10 +162,20 @@ Renderer::Renderer( std::vector<float>&				nodes,
 		}
 	}
 
+	// average pixel values in im_tmp to result.
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			result->access[y][x] = im_tmp->access[y][x].simplify();
+		}
+	}
+
 	// fill color of the interior of each shape.
+	// TODO: to be implemented.
 
 	writer.close();
 	save("render.ppm", result);
+	//delete visited;
+	delete im_tmp;
 	delete result;
 }
 
@@ -197,4 +231,5 @@ int Renderer::_rgbDist( rgb& c1, rgb& c2 )
 		+ ((int)c1.g - c2.g) * ((int)c1.g - c2.g)
 		+ ((int)c1.b - c2.b) * ((int)c1.b - c2.b);
 }
+
 
