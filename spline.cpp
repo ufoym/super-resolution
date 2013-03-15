@@ -14,6 +14,51 @@ extern "C" {
 		integer *ier);
 }
 
+BSplineFitter::BSplineFitter( std::vector<float>& nodes, 
+							  std::vector<std::vector<int>>& indices, 
+							  std::vector<bool>& junction_map )
+{
+	std::pair<int, float> param_table[NUM_CURVE_TYPES];
+	param_table[0] = std::pair<int, float>(1, 0.0);
+	param_table[1] = std::pair<int, float>(1, 0.5);
+	param_table[2] = std::pair<int, float>(3, 0.5);
+	param_table[3] = std::pair<int, float>(3, 2.0);
+	param_table[4] = std::pair<int, float>(5, 2.0);
+
+	for (int ids = 0; ids < indices.size(); ids++) {
+		for (int idn = 0; idn < indices[ids].size(); idn += SAMPLE_INTERVAL) {
+
+			std::vector<float> points(2 * (1 + 2 * NUM_NEIGHBORS));
+			int shape_size = indices[ids].size();
+
+			for (int i = idn - NUM_NEIGHBORS; i <= idn + NUM_NEIGHBORS; i++) {
+				// in the case shape_size is much smaller than NUM_NEIGHBORS, 
+				// i + shape_size may still be negative, 
+				// so we use shape_size * NUM_NEIGHBORS instead.
+				int idx = indices[ids][(i + shape_size * NUM_NEIGHBORS) % shape_size];
+				int px = 2 * (i + NUM_NEIGHBORS - idn);
+				int py = px + 1;
+
+				points[px] = nodes[2 * idx];
+				points[py] = nodes[2 * idx + 1];
+			}
+
+			for (int i = 0; i < NUM_CURVE_TYPES; i++) {
+				int k = param_table[i].first;
+				float s = param_table[i].second;
+
+				splines.push_back(BSpline());
+				splines[splines.size() - 1].id_shape = ids;
+				splines[splines.size() - 1].id_node = idn;
+				splines[splines.size() - 1].data = points;
+				_fitBSpline(k, s, points, splines[splines.size() - 1]);
+			}
+		}
+	}
+	_saveBSpline();
+}
+
+
 void BSplineFitter::clear()
 {
 	splines.clear();
@@ -90,9 +135,9 @@ void BSplineFitter::_sampleBSpline( BSpline& spline, std::vector<float>& samples
 	// by here the results are already stored in samples.
 }
 
-void BSplineFitter::_fitBSpline( std::vector<float>& points, BSpline& spline )
+void BSplineFitter::_fitBSpline( long k, float s, std::vector<float>& points, BSpline& spline )
 {
-	long  iopt = 0, ipar = 0, idim = 2, k = 1,
+	long  iopt = 0, ipar = 0, idim = 2,
 		m = points.size() / 2,
 		mx = idim * m,
 		nest = m + k + 1,
@@ -100,7 +145,7 @@ void BSplineFitter::_fitBSpline( std::vector<float>& points, BSpline& spline )
 		lwrk = m*(k+1)+nest*(6+idim+3*k),
 		n, ier;
 	long  *iwrk = new long[nest];
-	float ub, ue, fp, s = 3,
+	float ub, ue, fp,
 		*x = &points[0];
 	float *u = new float[m],
 		*w = new float[m],
@@ -138,34 +183,3 @@ void BSplineFitter::_fitBSpline( std::vector<float>& points, BSpline& spline )
 
 	delete[] iwrk, u, w, t, c, wrk;
 }
-
-BSplineFitter::BSplineFitter( std::vector<float>& nodes, std::vector<std::vector<int>>& indices, std::vector<bool>& junction_map )
-{
-	for (int ids = 0; ids < indices.size(); ids++) {
-		for (int idn = 0; idn < indices[ids].size(); idn += SAMPLE_INTERVAL) {
-
-			std::vector<float> points(2 * (1 + 2 * NUM_NEIGHBORS));
-			int shape_size = indices[ids].size();
-
-			for (int i = idn - NUM_NEIGHBORS; i <= idn + NUM_NEIGHBORS; i++) {
-				// in the case shape_size is much smaller than NUM_NEIGHBORS, 
-				// i + shape_size may still be negative, 
-				// so we use shape_size * NUM_NEIGHBORS instead.
-				int idx = indices[ids][(i + shape_size * NUM_NEIGHBORS) % shape_size];
-				int px = 2 * (i + NUM_NEIGHBORS - idn);
-				int py = px + 1;
-
-				points[px] = nodes[2 * idx];
-				points[py] = nodes[2 * idx + 1];
-			}
-
-			splines.push_back(BSpline());
-			splines[splines.size() - 1].id_shape = ids;
-			splines[splines.size() - 1].id_node = idn;
-			splines[splines.size() - 1].data = points;
-			_fitBSpline(points, splines[splines.size() - 1]);
-		}
-	}
-	_saveBSpline();
-}
-

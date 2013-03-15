@@ -55,7 +55,7 @@ const int NEIB_POS[] = {
 //-------------------------------------------------------------------------
 
 inline rgb rgbf2rgb(const rgbf& x)
-{rgb v = {(int)x.r, (int)x.g, (int)x.b}; return v;}
+{rgb v((int)x.r, (int)x.g, (int)x.b); return v;}
 inline rgbf rgb2rgbf(const rgb& x) 
 {rgbf v(x.r, x.g, x.b); return v;}
 

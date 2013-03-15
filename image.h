@@ -66,7 +66,14 @@ private:
 // color type
 //-------------------------------------------------------------------------
 
-typedef struct { unsigned char r, g, b; } rgb;
+struct rgb{ 
+	unsigned char r, g, b; 
+	rgb() {r = 0; g = 0; b = 0;}
+	rgb(unsigned char r, unsigned char g, unsigned char b) {
+		this->r = r; this->g = g; this->b = b;
+	}
+	bool operator != (rgb& c) { return !(r == c.r && g == c.g && b == c.b);}
+};
 
 //-------------------------------------------------------------------------
 // image IO

@@ -9,6 +9,7 @@
 struct BSpline
 {
 	int k;
+	float s;
 	std::vector<float> t;
 	std::vector<float> c;
 	std::vector<float> u;
@@ -20,9 +21,10 @@ struct BSpline
 
 class BSplineFitter
 {
-#define NUM_NEIGHBORS		10
-#define SAMPLE_INTERVAL		1
 private:
+	#define NUM_CURVE_TYPES		5
+	#define NUM_NEIGHBORS		5
+	#define SAMPLE_INTERVAL		1
 	std::vector<BSpline> splines;
 
 public:
@@ -37,7 +39,7 @@ public:
 	void clear();
 
 private:
-	void _fitBSpline(std::vector<float>& points, BSpline& spline);
+	void _fitBSpline(long k, float s, std::vector<float>& points, BSpline& spline);
 
 	void _sampleBSpline(BSpline& spline, std::vector<float>& samples);
 

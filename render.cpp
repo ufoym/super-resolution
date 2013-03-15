@@ -5,6 +5,29 @@
 #include "svg.h"
 #include "render.h"
 
+struct xrgb{
+	int cnt, r, g, b;
+	xrgb() {cnt = r = g = b = 0;}
+	void operator += (rgb& c) {
+		cnt++;
+		r += c.r;
+		g += c.g;
+		b += c.b;
+	}
+	rgb simplify() {
+		rgb c(0, 0, 0);
+		if (cnt != 0) {
+			c.r = r / cnt;
+			c.g = g / cnt;
+			c.b = b / cnt;
+		}
+		return c;
+	}
+	void clear() {cnt = r = g = b = 0;}
+};
+
+bool debug_mode = false;
+
 Renderer::Renderer( std::vector<float>&				nodes, 
 					std::vector<std::vector<int>>&	indices, 
 					std::vector<bool>&				junction_map, 
@@ -13,8 +36,9 @@ Renderer::Renderer( std::vector<float>&				nodes,
 					image<rgb>*						seg_img, 
 					std::map<int, rgb>&				color_map )
 {
-	bool debug_mode = false;
-	int DEBUG_ID_SPLINE = 200;
+	
+	
+	int DEBUG_ID_SPLINE = 1500;
 	SVGWriter writer("debug.svg");
 
 	// allocate memory for the result.
@@ -23,24 +47,7 @@ Renderer::Renderer( std::vector<float>&				nodes,
 	image<rgb> *result = new image<rgb>(width, height);
 	//image<char> *visited = new image<char>(width, height);
 
-	typedef struct{
-		int cnt, r, g, b;
-		void operator += (rgb& c) {
-			cnt++;
-			r += c.r;
-			g += c.g;
-			b += c.b;
-		}
-		rgb simplify() {
-			rgb c = {0, 0, 0};
-			if (cnt != 0) {
-				c.r = r / cnt;
-				c.g = g / cnt;
-				c.b = b / cnt;
-			}
-			return c;
-		}
-	} xrgb;
+	
 	image<xrgb> *im_tmp = new image<xrgb>(width, height);
 
 	// scale up all the coordinates.
@@ -55,8 +62,94 @@ Renderer::Renderer( std::vector<float>&				nodes,
 			splines[i].samples[j] *= UP_SCALE;
 	}
 
+
+	std::vector<int> idx_winners;
+	std::vector<float> shape_polygon;
+	int last_shape = -1;
+	for (int id_spline = 0; id_spline < splines.size(); id_spline += NUM_CURVE_TYPES) {
+		// update shape_polygon only if the shape changes.
+		// this saves a lot of computation by not recomputing the shape_polygon 
+		// for each node in the zig-zag boundary.
+		int cur_shape = splines[id_spline].id_shape;
+		if (cur_shape != last_shape) {
+			shape_polygon.clear();
+			for (int i = 0; i < indices[cur_shape].size(); i++) {
+				int idx = indices[cur_shape][i];
+				shape_polygon.push_back(nodes[2 * idx]);
+				shape_polygon.push_back(nodes[2 * idx + 1]);
+			}
+		}
+		last_shape = cur_shape;
+		if (id_spline == DEBUG_ID_SPLINE) {debug_mode = true;}
+
+		// determine foreground and background color for the current node.
+		int n = splines[id_spline].data.size() / 2;
+		int id_central = n / 2;
+		int xc = splines[id_spline].data[2 * id_central];
+		int yc = splines[id_spline].data[2 * id_central + 1];
+		xc = std::min(xc, width - 1);
+		yc = std::min(yc, height - 1);
+		rgb fg_color = color_map[cur_shape];
+		rgb bg_color = _calcBgColor(xc / UP_SCALE, yc / UP_SCALE, seg_img, fg_color);
+
+		
+
+		double max_likelihood = -1;
+		int idx_best = -1;
+		
+		for (int i = 0; i < NUM_CURVE_TYPES; i++) {
+			double lh = _calcLikelihood(xc, yc, splines[id_spline + i], im, fg_color, bg_color, shape_polygon);
+			if (debug_mode) std::cout << std::endl;
+			// std::cout << 1e+7 - lh << std::endl;
+			if (lh > max_likelihood) {
+				idx_best = i + id_spline;
+				max_likelihood = lh;
+			}
+		}
+		if (debug_mode) {
+			std::cout << "fg_color: "
+				<< (int)fg_color.r << ","
+				<< (int)fg_color.g << ","
+				<< (int)fg_color.b << std::endl;
+			std::cout << "bg_color: "
+				<< (int)bg_color.r << ","
+				<< (int)bg_color.g << ","
+				<< (int)bg_color.b << std::endl;
+		}
+		if (id_spline == DEBUG_ID_SPLINE) {
+			debug_mode = false;
+		}
+		//std::cout << idx_best - id_spline << ",    " << idx_best << std::endl;
+		idx_winners.push_back(idx_best);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	debug_mode = true;
 	// render patches on shape boundaries.
-	for (int id_spline = 0; id_spline < splines.size(); id_spline++) {
+	//for (int id_spline = 0; id_spline < splines.size(); id_spline++) {
+	for (int idx_set = 0; idx_set < idx_winners.size(); idx_set++) {
+		int id_spline = idx_winners[idx_set];
+
+
+		if (id_spline == 1500) id_spline = 1504;
+#undef DEBUG_ID_SPLINE
+#define DEBUG_ID_SPLINE 1504
+
 
 		// step 1: determine the central node of this spline.
 		BSpline& spline = splines[id_spline];
@@ -230,6 +323,161 @@ int Renderer::_rgbDist( rgb& c1, rgb& c2 )
 	return ((int)c1.r - c2.r) * ((int)c1.r - c2.r)
 		+ ((int)c1.g - c2.g) * ((int)c1.g - c2.g)
 		+ ((int)c1.b - c2.b) * ((int)c1.b - c2.b);
+}
+
+double Renderer::_calcLikelihood( int xc, int yc, BSpline& spline, image<rgb>* im, rgb& fg_color, rgb& bg_color, std::vector<float>& shape_polygon )
+{
+	if (debug_mode){
+		int a = 3;
+	}
+	// merge curve and polygon.
+	std::vector<float> new_polygon;
+	_mergeCurvePolygon(spline.samples, shape_polygon, new_polygon);
+
+	
+
+	rgb hi_patch[4 * HIRES_PATCH_RADIUS * HIRES_PATCH_RADIUS];
+	rgb lo_patch[4 * LORES_PATCH_RADIUS * LORES_PATCH_RADIUS];
+	rgb ds_patch[4 * LORES_PATCH_RADIUS * LORES_PATCH_RADIUS];
+
+	if (debug_mode) {
+		for (int y = 0; y < 6; y++) {
+			for (int x = 0; x < 6; x++) {
+				int idx = y * 6 + x;
+				//if (((int)hi_patch[idx].r) != 255
+				//	|| ((int)hi_patch[idx].g) != 255
+				//	|| ((int)hi_patch[idx].b) != 255)
+				//	std::cout << "here" << std::endl;
+				/*std::cout << "(" << (int)hi_patch[idx].r 
+					      << "," << (int)hi_patch[idx].g
+						  << "," << (int)hi_patch[idx].b
+						  << ")\t";*/
+			}
+			//std::cout << "\n";
+		}
+	}
+
+	
+	_renderPatch(xc, yc, HIRES_PATCH_RADIUS, new_polygon, fg_color, bg_color, hi_patch);
+	xrgb tmp[4 * HIRES_PATCH_RADIUS * HIRES_PATCH_RADIUS];
+	for (int i = 0; i < 4 * HIRES_PATCH_RADIUS * HIRES_PATCH_RADIUS; i++)
+		tmp[i] += hi_patch[i];
+
+	_bicubicInterp(hi_patch, 2 * HIRES_PATCH_RADIUS, 
+				   ds_patch, 2 * LORES_PATCH_RADIUS);
+	_getPatch(xc / 3, yc / 3, im, lo_patch, LORES_PATCH_RADIUS);
+
+	double err = _clacPatchDiff(lo_patch, ds_patch, LORES_PATCH_RADIUS);
+	return 1e+7 - err;
+}
+
+void Renderer::_mergeCurvePolygon( std::vector<float>& samples, std::vector<float>& shape_polygon, std::vector<float>& new_polygon )
+{
+	// step 3: merge the spline with the polygon of current shape.
+	int shape_size = shape_polygon.size() / 2;
+	std::pair<float, float> lo_endpt(samples[0], samples[1]);
+	std::pair<float, float> hi_endpt(samples[samples.size() - 2], samples[samples.size() - 1]);
+	new_polygon = samples;
+
+	int idx_lo_ngbr = _findNeighbor(lo_endpt.first, lo_endpt.second, shape_polygon);
+	int idx_hi_ngbr = _findNeighbor(hi_endpt.first, hi_endpt.second, shape_polygon);
+
+	for (int i = idx_hi_ngbr; i % shape_size != idx_lo_ngbr; i++) {
+		int idx = i % shape_size;
+		new_polygon.push_back(shape_polygon[2 * idx]);
+		new_polygon.push_back(shape_polygon[2 * idx + 1]);
+	}
+	new_polygon.push_back(shape_polygon[2 * idx_lo_ngbr]);
+	new_polygon.push_back(shape_polygon[2 * idx_lo_ngbr + 1]);
+}
+
+void Renderer::_getPatch( int xc, int yc, image<rgb> *im, rgb* patch, int radius )
+{
+	for (int dx = -radius; dx < radius; dx++) {
+		for (int dy = -radius; dy < radius; dy++) {
+			if (xc + dx >= 0 && xc + dx < im->width()
+				&& yc + dy >= 0 && yc + dy < im->height())
+				patch[(dy + radius) * (2 * radius) + (dx + radius)]
+					= im->access[yc + dy][xc + dx];
+			else
+				patch[(dy + radius) * (2 * radius) + (dx + radius)]
+					= rgb(0, 0, 0);
+		}
+	}
+}
+
+rgb Renderer::_calcBgColor( int xc, int yc, image<rgb>* seg_img, rgb fg_color )
+{
+	rgb bg_color = seg_img->access[yc][xc];
+	for (int dx = -1; dx <= 0; dx++) {
+		for (int dy = -1; dy <= 0; dy++) {
+			if (xc + dx >= 0 && xc + dx < seg_img->width() 
+				&& yc + dy >= 0 && yc + dy < seg_img->height()) {
+				if (seg_img->access[yc + dy][xc + dx] != fg_color)
+					bg_color = seg_img->access[yc + dy][xc + dx];
+			}
+		}
+	}
+	return bg_color;
+}
+
+double Renderer::_clacPatchDiff( rgb *p, rgb *q, int radius )
+{
+	int dist = 0;
+	for (int i = 0; i < 4 * radius * radius; i++) {
+		dist += _rgbDist(p[i], q[i]);
+	}
+	return dist;
+}
+
+void Renderer::_renderPatch( int xc, int yc, int radius, std::vector<float>& new_polygon, rgb& fg_color, rgb& bg_color, rgb *patch )
+{
+	for (int x = xc - radius; x < xc + radius; x++) {
+		for (int y = yc - radius; y < yc + radius; y++) {
+			// subdivide a pixel into 5x5 grid with 25 sensor points.
+			// perform pointInPolygon test to these 25 points and calculate
+			// the pixel color as linear combination of fore- & back-ground colors.
+			int num_inside = 0;
+			for (float dx = 0.1; dx < 1; dx += 0.2) {
+				for (float dy = 0.1; dy < 1; dy += 0.2) {
+					if (_pointInPolygon(x + dx, y + dy, new_polygon))
+						num_inside++;
+				}
+			}
+			patch[(y + radius - yc) * (2 * radius) + (x + radius - xc)]
+				= _linearComb(fg_color, bg_color, num_inside / 25.0);
+		}
+	}
+}
+
+void Renderer::_bicubicInterp( rgb *hi_patch, int hi_side, rgb *lo_patch, int lo_side )
+{
+	// FIXME: i did not implement a bicubic interpolation.
+	// i just do ad-hoc for the case where UP_SCALE = 3.
+	xrgb c;
+	for (int x = 0; x < 3; x++) 
+		for (int y = 0; y < 3; y++)
+			c += hi_patch[y * 6 + x];
+	lo_patch[0] = c.simplify();
+	c.clear();
+
+	for (int x = 3; x < 6; x++) 
+		for (int y = 0; y < 3; y++)
+			c += hi_patch[y * 6 + x];
+	lo_patch[1] = c.simplify();
+	c.clear();
+
+	for (int x = 0; x < 3; x++) 
+		for (int y = 3; y < 6; y++)
+			c += hi_patch[y * 6 + x];
+	lo_patch[2] = c.simplify();
+	c.clear();
+
+	for (int x = 3; x < 6; x++) 
+		for (int y = 3; y < 6; y++)
+			c += hi_patch[y * 6 + x];
+	lo_patch[3] = c.simplify();
+	c.clear();
 }
 
 
