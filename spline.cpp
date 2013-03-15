@@ -18,7 +18,7 @@ BSplineFitter::BSplineFitter( std::vector<float>& nodes,
 							  std::vector<std::vector<int>>& indices, 
 							  std::vector<bool>& junction_map )
 {
-	std::pair<int, float> param_table[NUM_CURVE_TYPES];
+	std::pair<int, float> param_table[5 * NUM_CURVE_TYPES];
 	param_table[0] = std::pair<int, float>(1, 0.0);
 	param_table[1] = std::pair<int, float>(1, 0.5);
 	param_table[2] = std::pair<int, float>(3, 0.5);

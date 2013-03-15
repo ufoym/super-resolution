@@ -22,8 +22,8 @@ struct BSpline
 class BSplineFitter
 {
 private:
-	#define NUM_CURVE_TYPES		5
-	#define NUM_NEIGHBORS		5
+	#define NUM_CURVE_TYPES		3
+	#define NUM_NEIGHBORS		3
 	#define SAMPLE_INTERVAL		1
 	std::vector<BSpline> splines;
 
