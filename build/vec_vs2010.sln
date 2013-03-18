@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vec_vs2010", "vec_vs2010.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BSpline", "..\BSpline\BSpline.vcxproj", "{C1C1795D-99F1-4D95-88C1-E324A76E847A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TableGen", "..\TableGen\TableGen.vcxproj", "{ACFA17AB-7A6E-4976-829E-1C23C85141A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{C1C1795D-99F1-4D95-88C1-E324A76E847A}.Debug|Win32.Build.0 = Debug|Win32
 		{C1C1795D-99F1-4D95-88C1-E324A76E847A}.Release|Win32.ActiveCfg = Release|Win32
 		{C1C1795D-99F1-4D95-88C1-E324A76E847A}.Release|Win32.Build.0 = Release|Win32
+		{ACFA17AB-7A6E-4976-829E-1C23C85141A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ACFA17AB-7A6E-4976-829E-1C23C85141A5}.Debug|Win32.Build.0 = Debug|Win32
+		{ACFA17AB-7A6E-4976-829E-1C23C85141A5}.Release|Win32.ActiveCfg = Release|Win32
+		{ACFA17AB-7A6E-4976-829E-1C23C85141A5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
