@@ -1,8 +1,55 @@
 #include <iostream>
 #include <cstring>
+#include <vector>
 #include <cmath>
 
-#define PI 3.1415926535897932
+#define PI	3.1415926535897932
+#define L	6
+
+void generateTable()
+{
+	for (float d1 = -28 * 0.3; d1 <= 28 * 0.3; d1 += 0.3) {
+		for (float theta1 = 0.0; theta1 <= 175.0; theta1 += 5.0) {
+			for (float d2 = -28 * 0.3; d2 <= 28 * 0.3; d2 += 0.3) {
+				for (float theta2 = 0.0; theta2 <= 175.0; theta2 += 5.0) {
+
+					// case 1: the two lines coincide.
+					if (d1 == d2 && theta1 == theta2) {
+
+						continue;
+					}
+
+					// case 2: the two lines intersect.
+
+					bool verti1 = (std::abs(theta1 - 90) < 0.1);
+					bool verti2 = (std::abs(theta2 - 90) < 0.1);
+
+					double x1, y1, x2, y2, k1, k2, x, y,
+						t1 = theta1 / PI,
+						t2 = theta2 / PI;
+					std::vector<float> markers;
+
+					if (verti1 || verti2) {
+						if (verti1) {
+							std::swap(d1, d2);
+							std::swap(theta1, theta2);
+						}
+						x1 = d1 * std::sin(t1);
+						y1 = -d1 * std::cos(t1);
+						k1 = std::tan(t1);
+						x2 = d2;
+						x = x2;
+						y = y1 + k1 * (x - x1);
+					}
+					else {
+
+					}
+
+				}
+			}
+		}
+	}
+}
 
 bool isAccepted(float d1, float theta1, float d2, float theta2) {
 	bool vertical1 = (std::abs(theta1 - 90) < 0.1);
