@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <list>
+#include "gpc.h"
 
 typedef struct
 {
@@ -216,4 +217,50 @@ public:
 			return 3;
 		return 0;  // control should never reach here.
 	}
+
+	double _calcPixelAlpha( int x, int y, std::vector<float>& polygon ) 
+	{
+		gpc_polygon pixel_polygon, corner_polygon, result;
+		gpc_vertex_list pixel_contour, corner_contour;
+
+		gpc_vertex pixel_vertices[4];
+		pixel_vertices[0].x = x + 0;	pixel_vertices[0].y = y + 0;
+		pixel_vertices[1].x = x + 1;	pixel_vertices[1].y = y + 0;
+		pixel_vertices[2].x = x + 1;	pixel_vertices[2].y = y + 1;
+		pixel_vertices[3].x = x + 0;	pixel_vertices[3].y = y + 1;
+
+		gpc_vertex corner_vertices[7];  // there are at most 7 markers in the polygon.
+		for (int i = 0; i < polygon.size() / 2; i++) {
+			corner_vertices[i].x = polygon[2 * i];
+			corner_vertices[i].y = polygon[2 * i + 1];
+		}
+		
+		pixel_contour.num_vertices =4;
+		pixel_contour.vertex = pixel_vertices;
+		corner_contour.num_vertices = polygon.size() / 2;
+		corner_contour.vertex = corner_vertices;
+
+		pixel_polygon.contour = &pixel_contour;
+		pixel_polygon.hole = NULL;
+		pixel_polygon.num_contours = 1;
+		corner_polygon.contour = &corner_contour;
+		corner_polygon.hole = NULL;
+		corner_polygon.num_contours = 1;
+
+		gpc_polygon_clip(GPC_INT, &pixel_polygon, &corner_polygon, &result);
+		double area = 0;
+		if (result.num_contours > 0) {
+			int n = result.contour[0].num_vertices;
+			gpc_vertex *v = result.contour[0].vertex;
+			for (int i = 0; i < n; i++) {
+				area += v[i].x * v[(i + 1) % n].y - v[(i + 1) % n].x - v[i].y;
+			}
+			area /= 2;
+		}
+		gpc_free_polygon(&result);
+		
+		return area;
+	}
+
+
 };
