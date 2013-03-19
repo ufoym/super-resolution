@@ -13,7 +13,7 @@ void SVGWriter::writeText( float x, float y, std::string text, std::string color
 		<< "\">" << text << "</text>";
 }
 
-void SVGWriter::writePolygon( std::vector<float> points, std::string color )
+void SVGWriter::writePolyline( std::vector<float>& points, std::string color )
 {
 	file << "<polyline points=\"";
 	for (int i = 0; i < points.size(); i += 2) {
@@ -26,7 +26,21 @@ void SVGWriter::writePolygon( std::vector<float> points, std::string color )
 		<< std::endl;
 }
 
-void SVGWriter::writeDots( std::vector<float> points, std::string color )
+void SVGWriter::writePolygon( std::vector<float>& points, std::string color )
+{
+	file << "<polygon points=\"";
+	for (int i = 0; i < points.size(); i += 2) {
+		file << points[i] << ","
+			<< points[i + 1] << " ";
+	}
+	file << "\" style=\"fill-opacity:0; "
+		<< "stroke-opacity:0.8; "
+		<< "stroke:" << color << "; stroke-width:0.1\"/>"
+		<< std::endl;
+}
+
+
+void SVGWriter::writeDots( std::vector<float>& points, std::string color )
 {
 	for (int i = 0 ; i < points.size(); i += 2) {
 		file << "<circle cx=\"" << points[i] 
@@ -52,4 +66,3 @@ SVGWriter::SVGWriter( std::string filename )
 		"\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
 		"<svg width=\"30\" height=\"30\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 }
-

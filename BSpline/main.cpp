@@ -46,7 +46,7 @@ public:
 		}
 	}
 
-	void writePolygon(std::vector<float> points, std::string color)
+	void writePolyline(std::vector<float> points, std::string color)
 	{
 		file << "<polyline points=\"";
 		for (int i = 0; i < points.size(); i += 2) {
@@ -156,7 +156,7 @@ int main()
 	SVGWriter writer("test.svg");
 	writer.writeDots(points, "#FF0000");
 	//writer.writePolygon(points, "#0000FF");
-	writer.writePolygon(result, "#0000FF");
+	writer.writePolyline(result, "#0000FF");
 	writer.close();
 
 	delete[] iwrk, u, w, x, t, c, wrk;

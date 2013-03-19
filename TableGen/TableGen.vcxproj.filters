@@ -18,7 +18,16 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="gpc.c">
+    <ClCompile Include="table.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="gpc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\svg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -27,6 +36,12 @@
       <Filter>源文件</Filter>
     </ClInclude>
     <ClInclude Include="gpc.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\svg.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\image.h">
       <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>

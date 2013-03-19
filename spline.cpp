@@ -87,7 +87,7 @@ void BSplineFitter::saveToSVG( std::string& filename )
 		if (i % 2 == 0) {color = "#00FF00";}
 		else			{color = "#0000FF";}
 
-		writer.writePolygon(splines[i].samples, color);
+		writer.writePolyline(splines[i].samples, color);
 		writer.writeText(x, y, text, color);
 	}
 	writer.close();

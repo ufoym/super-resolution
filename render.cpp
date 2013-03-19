@@ -207,7 +207,7 @@ Renderer::Renderer( std::vector<float>&				nodes,
 		new_polygon.push_back(polygon[2 * idx_lo_ngbr + 1]);
 
 		if (debug_mode && id_spline == DEBUG_ID_SPLINE) {
-			writer.writePolygon(new_polygon, "#00FF00");
+			writer.writePolyline(new_polygon, "#00FF00");
 			writer.writeDots(new_polygon, "#0000FF");
 		}
 

@@ -3,7 +3,18 @@
 #include <vector>
 #include <cmath>
 #include <list>
+#include <cassert>
+
 #include "gpc.h"
+#include "../image.h"
+#include "../svg.h"
+
+
+#define PI			3.1415926535897932
+#define PADDING		0.6
+#define UP_SCALE	3
+#define L			6	// (2 * UP_SCALE)
+
 
 typedef struct
 {
@@ -11,256 +22,178 @@ typedef struct
 	float hi_alphas[L * L];
 } Entry;
 
+struct Polyitem
+{
+	Polyitem() {}
+	Polyitem(int n, float *ptr) {num = n; memcpy(polygon, ptr, 2 * num * sizeof(float));}
+	int num;
+	float polygon[14];
+} ;
+
 class TableGenerator
 {
 private:
-	#define L			6
-	#define PI			3.1415926535897932
-	#define PADDING		0.2
-
-	std::list<Entry>	table;
-	std::vector<std::pair<float, float>> rot_markers;
+	std::vector<Entry>						table;
+	std::vector<std::pair<float, float>>	rot_markers;
+	std::vector<Polyitem>					polygons;
 
 public:
-	TableGenerator()
-	{
-		rot_markers.push_back(std::pair<float, float>(0, 0));
-		rot_markers.push_back(std::pair<float, float>(0, L));
-		rot_markers.push_back(std::pair<float, float>(L, L));
-		rot_markers.push_back(std::pair<float, float>(L, 0));
-	}
+	TableGenerator();
 
-	void generate() 
-	{
-		for (float d1 = -28 * 0.3; d1 <= 28 * 0.3; d1 += 0.3) {
-			for (float theta1 = 0.0; theta1 <= 175.0; theta1 += 5.0) {
-				for (float d2 = -28 * 0.3; d2 <= 28 * 0.3; d2 += 0.3) {
-					for (float theta2 = 0.0; theta2 <= 175.0; theta2 += 5.0) {
+	void exec();
 
-						// eliminate parallel lines.
-						if (theta1 == theta2 && d1 != d2) {
-							continue;
-						}
+	void _calcMarkersFromLine( float d, float theta, std::vector<std::pair<float, float>>& markers );
 
-						std::vector<std::pair<float, float>> 
-							marker_set1,
-							marker_set2, 
-							tmp;
-						std::pair<float, float> intersec(-1, -1);
-						// case 1: the two lines coincide.
-						if (d1 == d2 && theta1 == theta2) {
-							if (d1 == 0 && theta1 > 90)
-								continue;
-							_calcMarkersFromLine(d1, theta1, tmp);
-							if (tmp.size() != 2) 
-								continue;
-							marker_set1.push_back(tmp[0]);
-							marker_set2.push_back(tmp[1]);
-							
-						}
-						// case 2: the two lines intersect.
-						else 
-						{
-							intersec = _calcIntersection(d1, theta1, d2, theta2);
-							if (!(0 + PADDING < intersec.first && intersec.first < L - PADDING
-								&& 0 + PADDING < intersec.second && intersec.second < L - PADDING)) {
-									continue;
-							}
-							_calcMarkersFromLine(d1, theta1, marker_set1);
-							_calcMarkersFromLine(d2, theta2, marker_set2);
-						}
-
-						
-
-						
-			
-						
-						for (int idx1 = 0; idx1 < marker_set1.size(); idx1++) {
-							for (int idx2 = 0; idx2 < marker_set2.size(); idx2++) {
-								std::pair<float, float> start = marker_set1[idx1];
-								std::pair<float, float>   end = marker_set2[idx2];
-								std::vector<float> polygon;
-								Entry entry = {0};
-
-								_getFgPolygon(start, end, intersec, polygon);	
-
-								for (int x = 0; x < L; x++) {
-									for (int y = 0; y < L; y++) {
-										entry.hi_alphas[y * L + x] = _calcPixelAlpha(x, y, polygon);
-										entry.lo_alphas[(y/3) * 2 + (x/3)] += entry.hi_alphas[y * L + x];
-									}
-								}
-								for (int i = 0; i < 4; i++) {
-									entry.lo_alphas[i] /= ((L/2) * (L/2));
-								}
-
-								table.push_back(entry);
-								for (int i = 0; i < 4; i++) 
-									entry.lo_alphas[i] = 1 - entry.lo_alphas[i];
-								for (int i = 0; i < L * L; i++)
-									entry.hi_alphas[i] = 1 - entry.hi_alphas[i];
-								table.push_back(entry);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	std::pair<float, float> _calcIntersection( float d1, float theta1, float d2, float theta2 );
 
 	void _getFgPolygon( std::pair<float, float>&	start, 
 						std::pair<float, float>&	end, 
 						std::pair<float, float>&	intersec, 
-						std::vector<float>&			polygon ) 
+						std::vector<float>&			polygon );
+
+	int _getRotationID( std::pair<float, float>& marker );
+
+	double _calcPixelAlpha( int x, int y, std::vector<float>& polygon );
+
+	void visualize() 
 	{
-		polygon.push_back(start.first);
-		polygon.push_back(start.second);
+		const int num_visualize = 1000;
+		const int num_cols= 30;
+		int num_rows = num_visualize / num_cols;
+		if (num_visualize % num_cols > 0)
+			num_rows++;
 
-		int rot_id_start = _getRotationID(start);
-		int rot_id_end   = _getRotationID(end);
-		for (int rot_id = rot_id_start; rot_id != rot_id_end; 
-			rot_id = (rot_id + 1) % 4) {
-			polygon.push_back(rot_markers[rot_id].first);
-			polygon.push_back(rot_markers[rot_id].second);
-		}
+		int num_patches = table.size();
+		int interval = num_patches / num_visualize;
 
-		polygon.push_back(end.first);
-		polygon.push_back(end.second);
+		SVGWriter writer("cpp_table.svg");
+		int width = 3 * num_cols;
+		int height = 3 * num_rows;
+		image<rgb> *im = new image<rgb>(width, height);
+		for (int id = 0; id < num_patches; id += interval) {
 
-		if (intersec.first > 0 && intersec.second > 0) {
-			polygon.push_back(intersec.first);
-			polygon.push_back(intersec.second);
-		}
-	}
+			int i = id / interval;
+			int x = 3 * (i % num_cols);
+			int y = 3 * (i / num_cols);
+			rgb tmp(0, 0, 0);
 
-	void _calcMarkersFromLine( float d, float theta, std::vector<std::pair<float, float>>& markers ) 
-	{
-		if (theta == 90) {
-			if (d < 0 || d > L)
-				return;
-			markers.push_back(std::pair<float, float>(d, 0));
-			markers.push_back(std::pair<float, float>(d, L));
-			return;
-		}
-		if (theta == 0) {
-			if (d > 0 || d < -L)
-				return;
-			markers.push_back(std::pair<float, float>(0, -d));
-			markers.push_back(std::pair<float, float>(L, -d));
-		}
-		if (d == 0 && theta > 90)
-			return;
-
-		double t = theta / PI,
-			   k = std::tan(t),
-			   x0 = d * std::sin(t),
-			   y0 = -d * std::cos(t);
-		double xu = (0 - y0) / k + x0,
-			   xd = (L - y0) / k + x0,
-			   yl = k * (0 - x0) + y0,
-			   yr = k * (L - x0) + y0;
-
-		if (0 <= xu && xu <= L)
-			markers.push_back(std::pair<float, float>(xu, 0));
-		if (0 <= xd && xd <= L)
-			markers.push_back(std::pair<float, float>(xd, L));
-		if (0 <  yr && yr <  L)
-			markers.push_back(std::pair<float, float>(L, yr));
-		if (0 <  yl && yl <  L)
-			markers.push_back(std::pair<float, float>(0, yl));
-	}
-
-	std::pair<float, float> _calcIntersection( float d1, float theta1, float d2, float theta2 ) 
-	{
-		// this method assumes that the two lines from the input must intersect.
-		double t1 = theta1 / PI,
-			t2 = theta2 / PI,
-			x1 = d1 * std::sin(t1),
-			x2 = d2 * std::sin(t2),
-			y1 = -d1 * std::cos(t1),
-			y2 = -d2 * std::cos(t2),
-			k1 = std::tan(t1),
-			k2 = std::tan(t2),
-			x, y;
-
-		bool vertical1 = (theta1 == 90),
-			 vertical2 = (theta2 == 90);
-
-		if (vertical1 || vertical2) {
-			if (vertical1) {
-				std::swap(x1, x2);
-				std::swap(y1, y2);
-				std::swap(k1, k2);
+			Polyitem& item = polygons[id / 2];
+			std::vector<float> polygon;
+			polygon.resize(2 * item.num);
+			for (int j = 0; j < item.num; j++) {
+				polygon[2 * j] = x + item.polygon[2 * j] / UP_SCALE;
+				polygon[2 * j + 1] = y + item.polygon[2 * j + 1] / UP_SCALE;
 			}
-			x = x2;
-			y = y1 + k1 * (x - x1);
-		}
-		else {
-			x = (y2 - y1 + k1*x1 - k2*x2) / (k1 - k2);
-			y = y1 + k1 * (x - x1);
+			writer.writePolygon(polygon, "#FF0000");
+
+			tmp.g = (int)(255.0 * table[id].lo_alphas[0]);
+			im->set(x, y, tmp);
+			tmp.g = (int)(255.0 * table[id].lo_alphas[1]);
+			im->set(x + 1, y, tmp);
+			tmp.g = (int)(255.0 * table[id].lo_alphas[2]);
+			im->set(x, y + 1, tmp);
+			tmp.g = (int)(255.0 * table[id].lo_alphas[3]);
+			im->set(x + 1, y + 1, tmp);
 		}
 
-		return std::pair<float, float>(x, y);
+		save("cpp_table.ppm", im);
+		_saveBMP("cpp_table.bmp", im);
+		writer.close();
+		delete im;
 	}
 
-	int _getRotationID( std::pair<float, float>& marker ) 
+	void saveTable(const std::string filename)
 	{
-		float& x = marker.first;
-		float& y = marker.second;
-		if (y == 0 && 0 < x && x <= L)
-			return 0;
-		if (x == 0 && 0 <= y && y < L)
-			return 1;
-		if (y == L && 0 <= x && x < L)
-			return 2;
-		if (x == L && 0 < y && y <= L)
-			return 3;
-		return 0;  // control should never reach here.
+		std::ofstream file(filename, std::ios::out | std::ios::binary);
+		file << table.size() << "\n";
+		for (int i = 0; i < table.size(); i++) {
+			for (int j = 0; j < 4; j++) 
+				file << table[i].lo_alphas[j] << " ";
+			file << "\n";
+			for (int j = 0; j < L * L; j++)
+				file << table[i].hi_alphas[j] << " ";
+			file << "\n";
+		}
+		file.close();
 	}
 
-	double _calcPixelAlpha( int x, int y, std::vector<float>& polygon ) 
+	void loadTable(const std::string filename)
 	{
-		gpc_polygon pixel_polygon, corner_polygon, result;
-		gpc_vertex_list pixel_contour, corner_contour;
-
-		gpc_vertex pixel_vertices[4];
-		pixel_vertices[0].x = x + 0;	pixel_vertices[0].y = y + 0;
-		pixel_vertices[1].x = x + 1;	pixel_vertices[1].y = y + 0;
-		pixel_vertices[2].x = x + 1;	pixel_vertices[2].y = y + 1;
-		pixel_vertices[3].x = x + 0;	pixel_vertices[3].y = y + 1;
-
-		gpc_vertex corner_vertices[7];  // there are at most 7 markers in the polygon.
-		for (int i = 0; i < polygon.size() / 2; i++) {
-			corner_vertices[i].x = polygon[2 * i];
-			corner_vertices[i].y = polygon[2 * i + 1];
+		std::ifstream file(filename, std::ios::in | std::ios::binary);
+		int num_entries;
+		file >> num_entries;
+		table.resize(num_entries);
+		for (int i = 0; i < num_entries; i++) {
+			for (int j = 0; j < 4; j++)
+				file >> table[i].lo_alphas[j];
+			for (int j = 0; j < L * L; j++)
+				file >> table[i].hi_alphas[j];
 		}
-		
-		pixel_contour.num_vertices =4;
-		pixel_contour.vertex = pixel_vertices;
-		corner_contour.num_vertices = polygon.size() / 2;
-		corner_contour.vertex = corner_vertices;
+		file.close();
+	}
 
-		pixel_polygon.contour = &pixel_contour;
-		pixel_polygon.hole = NULL;
-		pixel_polygon.num_contours = 1;
-		corner_polygon.contour = &corner_contour;
-		corner_polygon.hole = NULL;
-		corner_polygon.num_contours = 1;
 
-		gpc_polygon_clip(GPC_INT, &pixel_polygon, &corner_polygon, &result);
-		double area = 0;
-		if (result.num_contours > 0) {
-			int n = result.contour[0].num_vertices;
-			gpc_vertex *v = result.contour[0].vertex;
-			for (int i = 0; i < n; i++) {
-				area += v[i].x * v[(i + 1) % n].y - v[(i + 1) % n].x - v[i].y;
+
+	void _saveBMP(const std::string filename, image<rgb> *im)
+	{
+		typedef struct {
+			char id[2];
+			long filesize;
+			short reserved[2];
+			long headersize;
+			long infoSize;
+			long width;
+			long height;
+			short biPlanes;
+			short bits;
+			long biCompression;
+			long biSizeImage;
+			long biXPelsPerMeter;
+			long biYPelsPerMeter;
+			long biClrUsed;
+			long biClrImportant;
+		} BMPHEAD;
+
+		std::cout << sizeof(BMPHEAD) << std::endl;
+
+		BMPHEAD bh;
+		memset ((char *)&bh, 0, sizeof(BMPHEAD)); /* sets everything to 0 */
+		memcpy (bh.id, "BM", 2);
+			// bh.filesize  =   calculated size of your file (see below)
+			// bh.reserved  = two zero bytes
+			bh.headersize  = 54L;				// (for 24 bit images)
+			bh.infoSize  =  40L;				// (for 24 bit images)
+			bh.width     = (long)im->width();	// width in pixels of your image
+			bh.height    = (long)im->height();	// depth in pixels of your image
+			bh.biPlanes  =  1;					// (for 24 bit images)
+			bh.bits      = 24;					// (for 24 bit images)
+			bh.biCompression = 0L;				// (no compression)
+
+		int bytesPerLine = bh.width * 3;  /* (for 24 bit images) */
+		if (bytesPerLine & 0x0003) {
+			bytesPerLine |= 0x0003;
+			++bytesPerLine;
+		}
+		bh.filesize = bh.headersize + (long)bytesPerLine * bh.height;
+
+
+		unsigned char *linebuf = new unsigned char[bytesPerLine];
+		memset(linebuf, 0, bytesPerLine * sizeof(unsigned char));
+		FILE *f = fopen(filename.c_str(), "wb");
+		assert(f != NULL);
+
+		fwrite(bh.id, 1, 2, f);
+		fwrite(&bh.filesize, 1, 52, f);
+		for (int y = bh.height - 1; y >= 0; y--) {
+			for (int x = 0; x < bh.width; x++) {
+				rgb& c = im->get(x, y);
+				linebuf[3 * x + 0] = c.b;
+				linebuf[3 * x + 1] = c.g;
+				linebuf[3 * x + 2] = c.r;
 			}
-			area /= 2;
+			fwrite(linebuf, 1, bytesPerLine, f);
 		}
-		gpc_free_polygon(&result);
-		
-		return area;
+		fclose(f);
+		delete linebuf;
 	}
-
-
 };
