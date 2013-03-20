@@ -42,6 +42,9 @@ ipch/
 *.opensdf
 *.sdf
 
+# Added by chizhang
+*.dat
+
 # Visual Studio profiler
 *.psess
 *.vsp
