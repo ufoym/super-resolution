@@ -35,7 +35,7 @@ class TableGenerator
 private:
 	std::vector<Entry>						table;
 	std::vector<std::pair<float, float>>	rot_markers;
-	std::vector<Polyitem>					polygons;
+	std::vector<Polyitem>					polygon_table;
 
 public:
 	TableGenerator();
@@ -57,8 +57,8 @@ public:
 
 	void visualize() 
 	{
-		const int num_visualize = 1000;
-		const int num_cols= 30;
+		const int num_visualize = table.size() / 2;
+		const int num_cols= 230;
 		int num_rows = num_visualize / num_cols;
 		if (num_visualize % num_cols > 0)
 			num_rows++;
@@ -66,7 +66,7 @@ public:
 		int num_patches = table.size();
 		int interval = num_patches / num_visualize;
 
-		SVGWriter writer("cpp_table.svg");
+		SVGWriter writer("cpp_table.svg", "cpp_table.bmp");
 		int width = 3 * num_cols;
 		int height = 3 * num_rows;
 		image<rgb> *im = new image<rgb>(width, height);
@@ -77,7 +77,7 @@ public:
 			int y = 3 * (i / num_cols);
 			rgb tmp(0, 0, 0);
 
-			Polyitem& item = polygons[id / 2];
+			Polyitem& item = polygon_table[id / 2];
 			std::vector<float> polygon;
 			polygon.resize(2 * item.num);
 			for (int j = 0; j < item.num; j++) {
@@ -96,13 +96,13 @@ public:
 			im->set(x + 1, y + 1, tmp);
 		}
 
-		save("cpp_table.ppm", im);
+		//save("cpp_table.ppm", im);
 		_saveBMP("cpp_table.bmp", im);
 		writer.close();
 		delete im;
 	}
 
-	void saveTable(const std::string filename)
+	void saveTableAscii(const std::string filename)
 	{
 		std::ofstream file(filename, std::ios::out | std::ios::binary);
 		file << table.size() << "\n";
@@ -117,7 +117,7 @@ public:
 		file.close();
 	}
 
-	void loadTable(const std::string filename)
+	void loadTableAscii(const std::string filename)
 	{
 		std::ifstream file(filename, std::ios::in | std::ios::binary);
 		int num_entries;
@@ -132,7 +132,47 @@ public:
 		file.close();
 	}
 
+	void savePatchTableBinary(const std::string filename)
+	{
+		FILE *f = fopen(filename.c_str(), "wb");
+		assert(f != NULL);
+		int table_size = table.size();
+		fwrite(&table_size, sizeof(int), 1, f);
+		fwrite(&table[0], sizeof(Entry), table_size, f);
+		fclose(f);
+	}
 
+	void loadPatchTableBinary(const std::string filename)
+	{
+		FILE *f = fopen(filename.c_str(), "rb");
+		assert(f != NULL);
+		int table_size;
+		fread(&table_size, sizeof(int), 1, f);
+		table.resize(table_size);
+		fread(&table[0], sizeof(Entry), table_size, f);
+		fclose(f);
+	}
+
+	void savePolygonTableBinary(const std::string filename)
+	{
+		FILE *f = fopen(filename.c_str(), "wb");
+		assert(f != NULL);
+		int table_size = polygon_table.size();
+		fwrite(&table_size, sizeof(int), 1, f);
+		fwrite(&polygon_table[0], sizeof(Polyitem), table_size, f);
+		fclose(f);
+	}
+
+	void loadPolygonTableBinary(const std::string filename)
+	{
+		FILE *f = fopen(filename.c_str(), "rb");
+		assert(f != NULL);
+		int table_size;
+		fread(&table_size, sizeof(int), 1, f);
+		polygon_table.resize(table_size);
+		fread(&polygon_table[0], sizeof(Polyitem), table_size, f);
+		fclose(f);
+	}
 
 	void _saveBMP(const std::string filename, image<rgb> *im)
 	{
@@ -153,8 +193,6 @@ public:
 			long biClrUsed;
 			long biClrImportant;
 		} BMPHEAD;
-
-		std::cout << sizeof(BMPHEAD) << std::endl;
 
 		BMPHEAD bh;
 		memset ((char *)&bh, 0, sizeof(BMPHEAD)); /* sets everything to 0 */
@@ -182,8 +220,11 @@ public:
 		FILE *f = fopen(filename.c_str(), "wb");
 		assert(f != NULL);
 
+		// we can not write bh in one shot, because the struct is memory aligned.
+		// (filled with 2 dummy bytes after the field id[2] - chizhang.
 		fwrite(bh.id, 1, 2, f);
 		fwrite(&bh.filesize, 1, 52, f);
+
 		for (int y = bh.height - 1; y >= 0; y--) {
 			for (int x = 0; x < bh.width; x++) {
 				rgb& c = im->get(x, y);

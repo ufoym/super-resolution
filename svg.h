@@ -10,7 +10,7 @@ private:
 	std::ofstream file;
 
 public:
-	SVGWriter(std::string filename);
+	SVGWriter(std::string filename, std::string bg_img_path = "");
 
 	void writeDot(float x, float y, std::string color);
 

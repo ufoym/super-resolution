@@ -11,19 +11,26 @@
 
 int main()
 {
-	int start = clock();
+	
 	TableGenerator gen;
 	gen.exec();
-	gen.visualize();
 
-	//image<rgb>* im = load("T.png");
-	//gen._saveBMP("cpp_table.bmp", im);
-	
-	//gen.loadTable("cpp_table.txt");
-	//gen.saveTable("cpp_table2.txt");
+	gen.savePatchTableBinary("patch_table.dat");
+	gen.savePolygonTableBinary("polygon_table.dat");
+
+
+	int start = clock();
+
+	gen.loadPatchTableBinary("patch_table.dat");
+	gen.loadPolygonTableBinary("polygon_table.dat");
 
 	int elapsed = (clock() - start) / 1000;
 	std::cout << "elapsed time: " << elapsed << "s\n";
+
+	gen.visualize();
+	
+
+	
 	return 0;
 }
 

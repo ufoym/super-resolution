@@ -163,11 +163,17 @@ void TableGenerator::exec()
 	const int num_samples = 10;
 	double sample_gap = L * std::sqrt(2.0) / num_samples;
 
-	for (float d1 = -num_samples * sample_gap; d1 <= num_samples * sample_gap; d1 += sample_gap) {
-		for (float theta1 = 0.0; theta1 <= 175.0; theta1 += 5.0) {
+	//for (float d1 = -num_samples * sample_gap; d1 <= num_samples * sample_gap; d1 += sample_gap) {
+	//	for (float theta1 = 0.0; theta1 <= 175.0; theta1 += 5.0) {
 
-			for (float d2 = /*notice*/d1; d2 <= num_samples * sample_gap; d2 += sample_gap) {
-				for (float theta2 = /*notice*/(d1 == d2 ? theta1 : 0.0); theta2 <= 175.0; theta2 += 5.0) {
+	//		for (float d2 = /*notice*/d1; d2 <= num_samples * sample_gap; d2 += sample_gap) {
+	//			for (float theta2 = /*notice*/(d1 == d2 ? theta1 : 0.0); theta2 <= 175.0; theta2 += 5.0) {
+	for (float theta1 = 0.0; theta1 <= 175.0; theta1 += 5.0) {
+		for (float d1 = -num_samples * sample_gap; d1 <= num_samples * sample_gap; d1 += sample_gap) {
+		
+			for (float theta2 = /*notice*/theta1; theta2 <= 175.0; theta2 += 5.0) {
+				for (float d2 = /*notice*/(theta1 == theta2 ? d1 : -num_samples * sample_gap); d2 <= num_samples * sample_gap; d2 += sample_gap) {
+				
 
 					// eliminate parallel lines.
 					if (theta1 == theta2 && d1 != d2) {
@@ -233,7 +239,7 @@ void TableGenerator::exec()
 								entry.hi_alphas[i] = 1 - entry.hi_alphas[i];
 							table.push_back(entry);
 
-							polygons.push_back(Polyitem(polygon.size() / 2, &polygon[0]));
+							polygon_table.push_back(Polyitem(polygon.size() / 2, &polygon[0]));
 						}
 					}
 				}
@@ -247,7 +253,7 @@ void TableGenerator::exec()
 TableGenerator::TableGenerator()
 {
 	table.reserve(200000);
-	polygons.reserve(200000);
+	polygon_table.reserve(200000);
 	rot_markers.push_back(std::pair<float, float>(0, 0));
 	rot_markers.push_back(std::pair<float, float>(0, L));
 	rot_markers.push_back(std::pair<float, float>(L, L));

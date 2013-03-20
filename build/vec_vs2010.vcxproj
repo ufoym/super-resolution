@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\chizhang\Documents\devlib;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\chizhang\Documents\devlib;C:\Users\chizhang\Documents\GitHub\super-resolution\ANN;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -76,6 +76,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ANN\bd_tree.h" />
+    <ClInclude Include="..\ANN\kd_fix_rad_search.h" />
+    <ClInclude Include="..\ANN\kd_pr_search.h" />
+    <ClInclude Include="..\ANN\kd_search.h" />
+    <ClInclude Include="..\ANN\kd_split.h" />
+    <ClInclude Include="..\ANN\kd_tree.h" />
+    <ClInclude Include="..\ANN\kd_util.h" />
+    <ClInclude Include="..\ANN\pr_queue.h" />
+    <ClInclude Include="..\ANN\pr_queue_k.h" />
     <ClInclude Include="..\b-spline\f2c.h" />
     <ClInclude Include="..\spline.h" />
     <ClInclude Include="..\conicfit.h" />
@@ -86,6 +95,20 @@
     <ClInclude Include="..\svg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ANN\ANN.cpp" />
+    <ClCompile Include="..\ANN\bd_fix_rad_search.cpp" />
+    <ClCompile Include="..\ANN\bd_pr_search.cpp" />
+    <ClCompile Include="..\ANN\bd_search.cpp" />
+    <ClCompile Include="..\ANN\bd_tree.cpp" />
+    <ClCompile Include="..\ANN\brute.cpp" />
+    <ClCompile Include="..\ANN\kd_dump.cpp" />
+    <ClCompile Include="..\ANN\kd_fix_rad_search.cpp" />
+    <ClCompile Include="..\ANN\kd_pr_search.cpp" />
+    <ClCompile Include="..\ANN\kd_search.cpp" />
+    <ClCompile Include="..\ANN\kd_split.cpp" />
+    <ClCompile Include="..\ANN\kd_tree.cpp" />
+    <ClCompile Include="..\ANN\kd_util.cpp" />
+    <ClCompile Include="..\ANN\perf.cpp" />
     <ClCompile Include="..\b-spline\curev.c" />
     <ClCompile Include="..\b-spline\fpback.c" />
     <ClCompile Include="..\b-spline\fpbspl.c" />

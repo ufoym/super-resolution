@@ -40,6 +40,48 @@
     <ClCompile Include="..\svg.cpp" />
     <ClCompile Include="..\render.cpp" />
     <ClCompile Include="..\spline.cpp" />
+    <ClCompile Include="..\ANN\ANN.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\bd_fix_rad_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\bd_pr_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\bd_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\bd_tree.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\brute.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_dump.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_fix_rad_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_pr_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_search.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_split.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_tree.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\kd_util.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ANN\perf.cpp">
+      <Filter>ann</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\b-spline\f2c.h">
@@ -66,6 +108,33 @@
     <ClInclude Include="..\svg.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\ANN\bd_tree.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_fix_rad_search.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_pr_search.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_search.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_split.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_tree.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\kd_util.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\pr_queue.h">
+      <Filter>ann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ANN\pr_queue_k.h">
+      <Filter>ann</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="fitpack">
@@ -73,6 +142,9 @@
     </Filter>
     <Filter Include="headers">
       <UniqueIdentifier>{1ba65b63-ae24-458f-b9f6-dd56a52ddae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ann">
+      <UniqueIdentifier>{6160a96a-e536-4ece-90b4-ecf9925877dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
