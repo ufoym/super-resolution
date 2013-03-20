@@ -40,6 +40,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\chizhang\Documents\devlib;C:\Users\chizhang\Documents\GitHub\super-resolution\ANN;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\chizhang\Documents\devlib\ANN;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Users\chizhang\Documents\devlib\ANN;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -56,6 +58,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ANN.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -76,6 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ANN.h" />
     <ClInclude Include="..\b-spline\f2c.h" />
     <ClInclude Include="..\spline.h" />
     <ClInclude Include="..\conicfit.h" />
@@ -84,6 +88,8 @@
     <ClInclude Include="..\render.h" />
     <ClInclude Include="..\segment.h" />
     <ClInclude Include="..\svg.h" />
+    <ClInclude Include="..\TableGen\gpc.h" />
+    <ClInclude Include="..\TableGen\table.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\b-spline\curev.c" />
@@ -103,6 +109,8 @@
     <ClCompile Include="..\render.cpp" />
     <ClCompile Include="..\segment.cpp" />
     <ClCompile Include="..\svg.cpp" />
+    <ClCompile Include="..\TableGen\gpc.cpp" />
+    <ClCompile Include="..\TableGen\table.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

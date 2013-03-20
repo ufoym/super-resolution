@@ -160,7 +160,7 @@ void TableGenerator::_calcMarkersFromLine( float d, float theta, std::vector<std
 
 void TableGenerator::exec()
 {
-	const int num_samples = 10;
+	const int num_samples = 30;
 	double sample_gap = L * std::sqrt(2.0) / num_samples;
 
 	//for (float d1 = -num_samples * sample_gap; d1 <= num_samples * sample_gap; d1 += sample_gap) {

@@ -40,6 +40,25 @@ void SVGWriter::writePolygon( std::vector<float>& points, std::string color )
 }
 
 
+void SVGWriter::writePolygonWithText( std::vector<float>& points, std::string color )
+{
+	file << "<polygon points=\"";
+	for (int i = 0; i < points.size(); i += 2) {
+		file << points[i] << ","
+			 << points[i + 1] << " ";
+	}
+	file << "\" style=\"fill-opacity:0; "
+		<< "stroke-opacity:0.8; "
+		<< "stroke:" << color << "; stroke-width:0.1\"/>"
+		<< std::endl;
+	for (int i = 0; i < points.size(); i += 2) {
+		file << "<text x=\"" << points[i] << "\" y=\"" << points[i + 1]
+			 << "\" font-size=\"0.5\" fill=\"" << color 
+			 << "\">" << i / 2 << "</text>\n";
+	}
+}
+
+
 void SVGWriter::writeDots( std::vector<float>& points, std::string color )
 {
 	for (int i = 0 ; i < points.size(); i += 2) {

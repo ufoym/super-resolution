@@ -481,3 +481,4 @@ void Renderer::_bicubicInterp( rgb *hi_patch, int hi_side, rgb *lo_patch, int lo
 }
 
 
+

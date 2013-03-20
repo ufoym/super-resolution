@@ -1,3 +1,5 @@
+#pragma  once
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -32,7 +34,7 @@ struct Polyitem
 
 class TableGenerator
 {
-private:
+public:		// for debug usage.
 	std::vector<Entry>						table;
 	std::vector<std::pair<float, float>>	rot_markers;
 	std::vector<Polyitem>					polygon_table;
@@ -173,6 +175,7 @@ public:
 		fread(&polygon_table[0], sizeof(Polyitem), table_size, f);
 		fclose(f);
 	}
+
 
 	void _saveBMP(const std::string filename, image<rgb> *im)
 	{

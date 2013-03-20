@@ -20,8 +20,9 @@ public:
 
 	void writePolygon(std::vector<float>& points, std::string color);
 
+	void writePolygonWithText( std::vector<float>& points, std::string color );
+
 	void writeText(float x, float y, std::string text, std::string color);
 
 	void close();
-
 };

@@ -40,6 +40,8 @@
     <ClCompile Include="..\svg.cpp" />
     <ClCompile Include="..\render.cpp" />
     <ClCompile Include="..\spline.cpp" />
+    <ClCompile Include="..\TableGen\table.cpp" />
+    <ClCompile Include="..\TableGen\gpc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\b-spline\f2c.h">
@@ -66,6 +68,11 @@
     <ClInclude Include="..\svg.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\ANN.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TableGen\table.h" />
+    <ClInclude Include="..\TableGen\gpc.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="fitpack">
